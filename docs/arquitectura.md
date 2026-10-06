@@ -6,22 +6,20 @@
 .
 ├── docs/                       # Documentación
 │   └── arquitectura.md
-├── src/                        # Código fuente (layout "src")
-│   └── conversor_unidades/
-│       ├── __init__.py
-│       ├── __main__.py         # Permite: python -m conversor_unidades
-│       ├── cli.py              # Interfaz de línea de comandos (argparse)
-│       └── conversor.py        # Lógica de conversión y registro CONVERSIONES
+├── src/                        # Código fuente
+│   ├── cli.py                  # Interfaz de línea de comandos (argparse)
+│   └── conversor.py            # Lógica de conversión y registro CONVERSIONES
 ├── tests/                      # Pruebas con pytest
 │   └── test_conversor.py
-├── pyproject.toml              # Metadatos del paquete y configuración de pytest
+├── pyproject.toml              # Configuración de pytest
 └── requirements.txt
 ```
 
-Se usa el *layout* `src` para que las pruebas se ejecuten contra el paquete y no contra
-archivos sueltos de la raíz: nada se puede importar por accidente desde el directorio de
-trabajo. `pyproject.toml` agrega `src` al `pythonpath` de pytest, así que las pruebas
-funcionan sin instalar el paquete.
+El código vive en `src/` como módulos planos, separado de las pruebas y la documentación.
+`pyproject.toml` agrega `src` al `pythonpath` de pytest, así que las pruebas importan
+`conversor` directamente sin instalar nada. Al ejecutar `python src/cli.py`, Python agrega
+`src/` al `sys.path` por ser la carpeta del script, por lo que `cli.py` encuentra a
+`conversor.py`.
 
 ## Módulos
 
@@ -36,7 +34,7 @@ funcionan sin instalar el paquete.
 
 ## Agregar una conversión
 
-1. Escribe la función en `src/conversor_unidades/conversor.py`.
+1. Escribe la función en `src/conversor.py`.
 2. Regístrala en `CONVERSIONES`.
 
 La CLI y `--listar` la detectan automáticamente.

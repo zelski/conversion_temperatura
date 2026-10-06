@@ -6,15 +6,14 @@ unidades de temperatura, distancia y masa.
 ## Instalación
 
 ```bash
-pip install -e ".[dev]"
+pip install -r requirements.txt
 ```
 
 ## Uso
 
 ```bash
-conversor 100 c2f          # 212.0
-conversor --listar         # muestra las conversiones disponibles
-python -m conversor_unidades 100 c2f   # alternativa sin el comando instalado
+python src/cli.py 100 c2f      # 212.0
+python src/cli.py --listar     # muestra las conversiones disponibles
 ```
 
 ## Pruebas

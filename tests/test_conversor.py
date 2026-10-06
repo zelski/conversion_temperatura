@@ -3,7 +3,7 @@
 
 import pytest
 
-from conversor_unidades.conversor import celsius_a_fahrenheit, km_a_millas, convertir
+from conversor import celsius_a_fahrenheit, km_a_millas, convertir
 
 
 def test_celsius_a_fahrenheit_punto_ebullicion():

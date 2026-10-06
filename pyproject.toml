@@ -1,24 +1,4 @@
-[build-system]
-requires = ["setuptools>=61"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "conversor-unidades"
-version = "0.1.0"
-description = "Conversor de unidades de línea de comandos (temperatura, distancia y masa)"
-readme = "README.md"
-requires-python = ">=3.10"
-
-[project.optional-dependencies]
-dev = ["pytest>=8.0"]
-
-[project.scripts]
-conversor = "conversor_unidades.cli:main"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
 [tool.pytest.ini_options]
-# Permite ejecutar las pruebas sin instalar el paquete
+# Agrega src/ al sys.path para que las pruebas importen los módulos directamente
 pythonpath = ["src"]
 testpaths = ["tests"]

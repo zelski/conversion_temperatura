@@ -1,11 +1,11 @@
 # cli.py
 # Interfaz de línea de comandos del conversor de unidades.
-# Uso: conversor VALOR CLAVE   |   conversor --listar
+# Uso: python src/cli.py VALOR CLAVE   |   python src/cli.py --listar
 
 import argparse
 import sys
 
-from conversor_unidades.conversor import CONVERSIONES, convertir
+from conversor import CONVERSIONES, convertir
 
 
 def construir_parser():
