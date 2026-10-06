@@ -9,21 +9,22 @@ A small command-line unit converter in pure Python (standard library only; `pyte
 ## Commands
 
 ```bash
-pip install -r requirements.txt              # installs pytest
+pip install -e ".[dev]"                      # installs the package (editable) and pytest
 python -m pytest                             # run all tests
 python -m pytest tests/test_conversor.py::test_convertir_clave_invalida   # single test
-python cli.py 100 c2f                        # run a conversion
-python cli.py --listar                       # list available conversion keys
+conversor 100 c2f                            # run a conversion (after install)
+python -m conversor_unidades 100 c2f         # same, without the console script
+conversor --listar                           # list available conversion keys
 ```
 
-The root `conftest.py` exists so pytest puts the project root on `sys.path`; tests import `conversor` directly without installing the package. There is no linter or build step configured.
+Uses the `src` layout: code lives in `src/conversor_unidades/`, tests in `tests/`, docs in `docs/`. `pyproject.toml` sets pytest's `pythonpath = ["src"]`, so tests import `conversor_unidades.conversor` without installing the package. There is no linter configured.
 
 ## Architecture
 
-- `conversor.py` — conversion logic. Each conversion is a standalone function that validates physical limits (below absolute zero, negative distance/mass) by raising `ValueError`. The `CONVERSIONES` dict is the central registry mapping a short key (e.g. `c2f`, `km2mi`) to `(function, description)`. `convertir(valor, clave)` is the single entry point: it raises `KeyError` for unknown keys and rounds results to 4 decimals.
-- `cli.py` — argparse front end. `main(argv=None)` returns an exit code (0 ok, 1 conversion error, 2 missing arguments) instead of calling `sys.exit` directly, so it can be tested by passing `argv`. `--listar` reads descriptions straight from `CONVERSIONES`.
+- `src/conversor_unidades/conversor.py` — conversion logic. Each conversion is a standalone function that validates physical limits (below absolute zero, negative distance/mass) by raising `ValueError`. The `CONVERSIONES` dict is the central registry mapping a short key (e.g. `c2f`, `km2mi`) to `(function, description)`. `convertir(valor, clave)` is the single entry point: it raises `KeyError` for unknown keys and rounds results to 4 decimals.
+- `src/conversor_unidades/cli.py` — argparse front end. `main(argv=None)` returns an exit code (0 ok, 1 conversion error, 2 missing arguments) instead of calling `sys.exit` directly, so it can be tested by passing `argv`. `--listar` reads descriptions straight from `CONVERSIONES`. It is exposed as the `conversor` console script (`pyproject.toml`) and via `__main__.py`.
 
-To add a conversion: write the function in `conversor.py` and register it in `CONVERSIONES`; the CLI and `--listar` pick it up automatically.
+To add a conversion: write the function in `src/conversor_unidades/conversor.py` and register it in `CONVERSIONES`; the CLI and `--listar` pick it up automatically.
 
 ## Tests
 
