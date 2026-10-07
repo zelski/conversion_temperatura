@@ -12,6 +12,11 @@ FACTOR_KG_A_LIBRAS = 2.20462
 CERO_ABSOLUTO_C = -273.15
 CERO_ABSOLUTO_F = -459.67
 
+# Mensajes de error compartidos por las validaciones
+MENSAJE_CERO_ABSOLUTO = "Temperatura por debajo del cero absoluto"
+MENSAJE_DISTANCIA_NEGATIVA = "La distancia no puede ser negativa"
+MENSAJE_MASA_NEGATIVA = "La masa no puede ser negativa"
+
 
 class ErrorConversion(ValueError):
     # Error de dominio del conversor: valor inválido o conversión inexistente.
@@ -24,43 +29,39 @@ class ConversionNoSoportada(ErrorConversion):
     pass
 
 
+def _exigir_minimo(valor, minimo, mensaje):
+    # Lanza ErrorConversion si el valor está por debajo del límite físico
+    if valor < minimo:
+        raise ErrorConversion(mensaje)
+
+
 def celsius_a_fahrenheit(celsius):
-    # Valida que la temperatura sea físicamente posible
-    if celsius < CERO_ABSOLUTO_C:
-        raise ErrorConversion("Temperatura por debajo del cero absoluto")
+    _exigir_minimo(celsius, CERO_ABSOLUTO_C, MENSAJE_CERO_ABSOLUTO)
     return celsius * 9 / 5 + 32
 
 
 def fahrenheit_a_celsius(fahrenheit):
-    # Valida que la temperatura sea físicamente posible
-    if fahrenheit < CERO_ABSOLUTO_F:
-        raise ErrorConversion("Temperatura por debajo del cero absoluto")
+    _exigir_minimo(fahrenheit, CERO_ABSOLUTO_F, MENSAJE_CERO_ABSOLUTO)
     return (fahrenheit - 32) * 5 / 9
 
 
 def km_a_millas(km):
-    # Las distancias negativas no tienen sentido físico
-    if km < 0:
-        raise ErrorConversion("La distancia no puede ser negativa")
+    _exigir_minimo(km, 0, MENSAJE_DISTANCIA_NEGATIVA)
     return km * FACTOR_KM_A_MILLAS
 
 
 def millas_a_km(millas):
-    if millas < 0:
-        raise ErrorConversion("La distancia no puede ser negativa")
+    _exigir_minimo(millas, 0, MENSAJE_DISTANCIA_NEGATIVA)
     return millas / FACTOR_KM_A_MILLAS
 
 
 def kg_a_libras(kg):
-    # Las masas negativas no tienen sentido físico
-    if kg < 0:
-        raise ErrorConversion("La masa no puede ser negativa")
+    _exigir_minimo(kg, 0, MENSAJE_MASA_NEGATIVA)
     return kg * FACTOR_KG_A_LIBRAS
 
 
 def libras_a_kg(libras):
-    if libras < 0:
-        raise ErrorConversion("La masa no puede ser negativa")
+    _exigir_minimo(libras, 0, MENSAJE_MASA_NEGATIVA)
     return libras / FACTOR_KG_A_LIBRAS
 
 
