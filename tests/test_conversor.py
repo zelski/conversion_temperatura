@@ -31,6 +31,22 @@ def test_convertir_valores_conocidos(clave, valor, esperado):
     assert convertir(valor, clave) == pytest.approx(esperado)
 
 
+@pytest.mark.xfail(strict=True, reason="Bug #10: factores de distancia y masa truncados")
+@pytest.mark.parametrize(
+    "clave, valor, esperado",
+    [
+        # Definiciones exactas: 1 mi = 1.609344 km y 1 lb = 0.45359237 kg
+        ("mi2km", 1000, 1609.344),
+        ("km2mi", 1000, 621.3712),
+        ("lb2kg", 1000, 453.5924),
+        ("kg2lb", 1000, 2204.6226),
+    ],
+)
+def test_convertir_es_exacto_hasta_el_ultimo_decimal(clave, valor, esperado):
+    # Con valores grandes, un factor truncado altera los 4 decimales que se muestran
+    assert convertir(valor, clave) == pytest.approx(esperado, abs=1e-9)
+
+
 @pytest.mark.parametrize("ida, vuelta", PARES_INVERSOS + [(b, a) for a, b in PARES_INVERSOS])
 @pytest.mark.parametrize("valor", [0, 1, 37.5, 1000])
 def test_ida_y_vuelta_recupera_el_valor(ida, vuelta, valor):
