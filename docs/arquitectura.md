@@ -10,7 +10,8 @@
 │   ├── cli.py                  # Interfaz de línea de comandos (argparse)
 │   └── conversor.py            # Lógica de conversión y registro CONVERSIONES
 ├── tests/                      # Pruebas con pytest
-│   └── test_conversor.py
+│   ├── test_cli.py             # Pruebas de la CLI (main y códigos de salida)
+│   └── test_conversor.py       # Pruebas de las conversiones
 ├── pyproject.toml              # Configuración de pytest
 └── requirements.txt
 ```
@@ -37,4 +38,18 @@ El código vive en `src/` como módulos planos, separado de las pruebas y la doc
 1. Escribe la función en `src/conversor.py`.
 2. Regístrala en `CONVERSIONES`.
 
-La CLI y `--listar` la detectan automáticamente.
+La CLI y `--listar` la detectan automáticamente. Agrega también sus casos a las pruebas
+parametrizadas de `tests/test_conversor.py`.
+
+## Pruebas y bugs conocidos
+
+Los bugs conocidos se documentan como pruebas marcadas con
+`pytest.mark.xfail(strict=True, reason="Bug #N: ...")`. Mientras el bug exista, la prueba
+aparece como `XFAIL` y la suite pasa. El PR que corrige el bug debe quitar la marca: si se
+olvida, la prueba aparece como `XPASS(strict)` y la suite falla.
+
+Para ver qué bugs siguen abiertos:
+
+```bash
+python -m pytest -rx
+```
