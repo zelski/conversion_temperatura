@@ -6,8 +6,8 @@
 import pytest
 
 from cli import SALIDA_ERROR_CONVERSION, SALIDA_ERROR_USO, SALIDA_OK, main
+import cli
 from conversor import CONVERSIONES
-
 
 
 @pytest.mark.parametrize(
@@ -43,4 +43,51 @@ def test_error_de_uso_devuelve_2_sin_lanzar(capsys, argv):
 
 def test_ayuda_devuelve_0_sin_lanzar(capsys):
     assert main(["--help"]) == SALIDA_OK
-    assert "usage:" in capsys.readouterr().out
+    assert "uso:" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("argv", [[], ["5"], ["abc", "c2f"], ["5", "c2f", "-x"]])
+def test_error_de_uso_escribe_solo_en_stderr(capsys, argv):
+    main(argv)
+    salida = capsys.readouterr()
+    assert salida.out == ""
+    assert salida.err != ""
+
+
+@pytest.mark.parametrize(
+    "argv, mensaje",
+    [
+        (["abc", "c2f"], "Error: el valor debe ser un número: 'abc'"),
+        (["5", "c2f", "-x"], "Error: argumentos no reconocidos: -x"),
+        (["--listar=1"], "Error: argumentos inválidos"),
+    ],
+)
+def test_errores_de_uso_en_espanol(capsys, argv, mensaje):
+    assert main(argv) == SALIDA_ERROR_USO
+    error = capsys.readouterr().err
+    assert error.startswith("uso: ")
+    assert mensaje in error
+
+
+def test_ayuda_en_espanol(capsys):
+    main(["--help"])
+    ayuda = capsys.readouterr().out
+    assert ayuda.startswith("uso: ")
+    assert "opciones:" in ayuda and "Muestra esta ayuda" in ayuda
+    assert not any(texto in ayuda for texto in ("usage", "options", "show this help"))
+
+
+def test_ayuda_muestra_el_comando_real(capsys):
+    main(["--help"])
+    assert capsys.readouterr().out.startswith("uso: python src/cli.py ")
+
+
+@pytest.mark.parametrize("codigo, esperado", [(0, 0), (2, 2), ("mensaje", 2), (None, 2)])
+def test_main_normaliza_el_codigo_de_systemexit(monkeypatch, codigo, esperado):
+    # SystemExit.code puede ser int, str o None; main() siempre devuelve un int
+    class ParserQueTermina:
+        def parse_known_args(self, argv):
+            raise SystemExit(codigo)
+
+    monkeypatch.setattr(cli, "construir_parser", ParserQueTermina)
+    assert main([]) == esperado
