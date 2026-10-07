@@ -45,31 +45,37 @@ def _exigir_minimo(valor: float, minimo: float, mensaje: str) -> None:
 
 
 def celsius_a_fahrenheit(celsius: float) -> float:
+    """°F = °C × 9/5 + 32. Rechaza temperaturas por debajo del cero absoluto."""
     _exigir_minimo(celsius, CERO_ABSOLUTO_C, MENSAJE_CERO_ABSOLUTO)
     return celsius * 9 / 5 + 32
 
 
 def fahrenheit_a_celsius(fahrenheit: float) -> float:
+    """°C = (°F - 32) × 5/9. Rechaza temperaturas por debajo del cero absoluto."""
     _exigir_minimo(fahrenheit, CERO_ABSOLUTO_F, MENSAJE_CERO_ABSOLUTO)
     return (fahrenheit - 32) * 5 / 9
 
 
 def km_a_millas(km: float) -> float:
+    """mi = km × FACTOR_KM_A_MILLAS. Rechaza distancias negativas."""
     _exigir_minimo(km, 0, MENSAJE_DISTANCIA_NEGATIVA)
     return km * FACTOR_KM_A_MILLAS
 
 
 def millas_a_km(millas: float) -> float:
+    """km = mi / FACTOR_KM_A_MILLAS. Rechaza distancias negativas."""
     _exigir_minimo(millas, 0, MENSAJE_DISTANCIA_NEGATIVA)
     return millas / FACTOR_KM_A_MILLAS
 
 
 def kg_a_libras(kg: float) -> float:
+    """lb = kg × FACTOR_KG_A_LIBRAS. Rechaza masas negativas."""
     _exigir_minimo(kg, 0, MENSAJE_MASA_NEGATIVA)
     return kg * FACTOR_KG_A_LIBRAS
 
 
 def libras_a_kg(libras: float) -> float:
+    """kg = lb / FACTOR_KG_A_LIBRAS. Rechaza masas negativas."""
     _exigir_minimo(libras, 0, MENSAJE_MASA_NEGATIVA)
     return libras / FACTOR_KG_A_LIBRAS
 

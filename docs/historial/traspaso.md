@@ -1,5 +1,12 @@
 # Traspaso de sesión: auditoría del conversor de unidades
 
+> **Documento histórico.** Se conserva tal como se escribió el 2026-10-05 para dar
+> continuidad entre sesiones de trabajo. Algunas indicaciones ya no aplican: por ejemplo,
+> pedía no incluirlo en ningún commit, y el código que muestra usa las rutas anteriores a
+> la reorganización (`cli.py` en la raíz en lugar de `src/`). El plan que derivó de este
+> documento está en [plan-de-mejora.md](plan-de-mejora.md). Para el estado actual del
+> proyecto, consulta la [documentación vigente](../README.md).
+
 Este archivo resume una sesión previa de Claude (Cowork) para continuarla en Claude Code.
 **No debe incluirse en ningún commit** (ver paso 0).
 
