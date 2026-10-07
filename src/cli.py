@@ -13,6 +13,7 @@ SALIDA_ERROR_USO = 2
 
 
 def construir_parser() -> argparse.ArgumentParser:
+    """Define los argumentos de la CLI: VALOR y CLAVE opcionales, y la bandera --listar."""
     parser = argparse.ArgumentParser(
         prog="conversor",
         description="Conversor de unidades de línea de comandos",

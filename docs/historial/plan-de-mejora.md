@@ -1,4 +1,4 @@
-# Plan de corrección de bugs y mejoras
+# Plan de mejora: corrección de bugs y mejoras de la auditoría
 
 > **Estado (2026-10-06): completado.** Los 9 PRs del plan se fusionaron en `main` como
 > PRs #4 a #12 de GitHub. La suite final tiene **61 pruebas pasando y ningún `xfail`**
@@ -6,15 +6,19 @@
 >
 > | PR del plan | Hallazgo | PR en GitHub |
 > |---|---|---|
-> | 1 | #3 Cobertura | #4 |
-> | 2 | #1 Fahrenheit → Celsius | #5 |
-> | 3 | #2 Valores no finitos | #6 |
-> | 4 | #4 Excepciones de dominio | #7 |
-> | 5 | #5 `SystemExit` | #8 |
-> | 6 | #6 DRY | #9 |
-> | 7 | #7 `NamedTuple` | #10 |
-> | 8 | #8 Type hints y docstrings | #11 |
-> | 9 | #9 `-0.0` | #12 |
+> | 1 | #3 Cobertura | [#4](https://github.com/zelski/conversion_temperatura/pull/4) |
+> | 2 | #1 Fahrenheit → Celsius | [#5](https://github.com/zelski/conversion_temperatura/pull/5) |
+> | 3 | #2 Valores no finitos | [#6](https://github.com/zelski/conversion_temperatura/pull/6) |
+> | 4 | #4 Excepciones de dominio | [#7](https://github.com/zelski/conversion_temperatura/pull/7) |
+> | 5 | #5 `SystemExit` | [#8](https://github.com/zelski/conversion_temperatura/pull/8) |
+> | 6 | #6 DRY | [#9](https://github.com/zelski/conversion_temperatura/pull/9) |
+> | 7 | #7 `NamedTuple` | [#10](https://github.com/zelski/conversion_temperatura/pull/10) |
+> | 8 | #8 Type hints y docstrings | [#11](https://github.com/zelski/conversion_temperatura/pull/11) |
+> | 9 | #9 `-0.0` | [#12](https://github.com/zelski/conversion_temperatura/pull/12) |
+>
+> **Documento histórico**: se conserva como registro de cómo se planificó y ejecutó la
+> corrección. Las rutas y comandos reflejan el proyecto en ese momento. Para el estado
+> actual, consulta la [documentación vigente](../README.md).
 
 Plan para atender los hallazgos de la auditoría del conversor de unidades. Parte de `main`
 en `82b0f9f` (después de fusionar el PR #3): el código vive en `src/` y las pruebas en `tests/`.
@@ -152,7 +156,7 @@ Verificación local:
 
 ## Resultado esperado
 
-Al terminar, el código debe coincidir con la versión final validada en `TRASPASO.md`
+Al terminar, el código debe coincidir con la versión final validada en [`traspaso.md`](traspaso.md)
 (adaptada a `src/`) y la suite debe tener **58 pruebas pasando y ningún `xfail`**. El PR 2 recupera el valor 0
 en las pruebas de ida y vuelta (se había quitado porque `c2f→f2c` con 0 coincidía por
 casualidad con el bug #1). Si los PRs 4 a 9 agregan pruebas nuevas, el total crecerá.

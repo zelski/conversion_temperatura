@@ -4,71 +4,105 @@
 
 ```text
 .
-├── docs/                       # Documentación
-│   ├── arquitectura.md         # Este documento
-│   ├── plan-de-mejora.md       # Plan de corrección de la auditoría (completado)
-│   └── TRASPASO.md             # Contexto de la sesión previa (histórico)
+├── docs/                       # Documentación (índice en docs/README.md)
 ├── src/                        # Código fuente
 │   ├── cli.py                  # Interfaz de línea de comandos (argparse)
 │   └── conversor.py            # Lógica de conversión y registro CONVERSIONES
-├── tests/                      # Pruebas con pytest
-│   ├── test_cli.py             # Pruebas de la CLI (main y códigos de salida)
-│   └── test_conversor.py       # Pruebas de las conversiones
+├── tests/                      # Pruebas con pytest (ver docs/pruebas.md)
+│   ├── test_cli.py
+│   └── test_conversor.py
+├── CHANGELOG.md                # Historial de cambios
+├── CLAUDE.md                   # Instrucciones para Claude Code
+├── CONTRIBUTING.md             # Cómo contribuir
 ├── pyproject.toml              # Configuración de pytest y coverage
-└── requirements.txt
+├── README.md
+└── requirements.txt            # Dependencias de desarrollo (pytest, pytest-cov)
 ```
 
-El código vive en `src/` como módulos planos, separado de las pruebas y la documentación.
-`pyproject.toml` agrega `src` al `pythonpath` de pytest, así que las pruebas importan
-`conversor` directamente sin instalar nada. Al ejecutar `python src/cli.py`, Python agrega
-`src/` al `sys.path` por ser la carpeta del script, por lo que `cli.py` encuentra a
-`conversor.py`.
+El código vive en `src/` como módulos planos, sin subpaquetes, separado de las pruebas y la
+documentación. No hay paquete instalable:
+
+- Al ejecutar `python src/cli.py`, Python agrega `src/` al `sys.path` por ser la carpeta del
+  script, así que `cli.py` puede importar `conversor`.
+- En las pruebas, `pyproject.toml` agrega `src/` al `pythonpath` de pytest.
+
+## Flujo de una conversión
+
+```text
+python src/cli.py 100 c2f
+        │
+        ▼
+cli.main(argv) ──── argparse valida los argumentos ──── error ──► código 2 (SALIDA_ERROR_USO)
+        │
+        ▼
+conversor.convertir(100.0, "c2f")
+        │  1. rechaza valores no finitos (nan, inf)       ──► ErrorConversion
+        │  2. busca la clave en CONVERSIONES              ──► ConversionNoSoportada
+        │  3. llama a celsius_a_fahrenheit(100.0)
+        │       └─ valida el límite físico (_exigir_minimo) ──► ErrorConversion
+        │  4. redondea a DECIMALES y normaliza -0.0
+        ▼
+212.0 ──► se imprime, código 0 (SALIDA_OK)
+
+ErrorConversion (o subclase) ──► "Error: <mensaje>" en stderr, código 1 (SALIDA_ERROR_CONVERSION)
+```
 
 ## Módulos
 
-- **`conversor.py`**: cada conversión es una función independiente que valida los límites
-  físicos (cero absoluto, distancias o masas negativas) lanzando `ErrorConversion`. El
-  diccionario `CONVERSIONES` es el registro central que asocia una clave corta (`c2f`,
-  `km2mi`, …) con una `Conversion(funcion, descripcion)` (`NamedTuple`).
-  `convertir(valor, clave)` es el punto de entrada único: lanza `ErrorConversion` para
-  valores no finitos (`nan`, `inf`), `ConversionNoSoportada` para claves desconocidas y
-  redondea el resultado a `DECIMALES` (4) decimales.
-- **Errores de dominio**: `ErrorConversion` hereda de `ValueError` y
-  `ConversionNoSoportada` hereda de `ErrorConversion`. Capturar `ErrorConversion` cubre
-  todos los errores del conversor.
-- **`cli.py`**: interfaz con `argparse`. `main(argv=None)` devuelve un código de salida
-  (`SALIDA_OK` 0, `SALIDA_ERROR_CONVERSION` 1, `SALIDA_ERROR_USO` 2) en lugar de llamar a `sys.exit`; también
-  captura el `SystemExit` de argparse (argumentos inválidos, `--help`) y devuelve su código,
-  para poder probarla pasando `argv`. Captura solo `ErrorConversion`. `--listar` lee las descripciones de `CONVERSIONES`.
+### `conversor.py`
+
+- **Funciones de conversión** (`celsius_a_fahrenheit`, `km_a_millas`, …): cada una valida su
+  límite físico con `_exigir_minimo()` y aplica su fórmula. Los factores y límites son
+  constantes con nombre (`FACTOR_KM_A_MILLAS`, `CERO_ABSOLUTO_C`, …).
+- **Registro `CONVERSIONES`**: asocia una clave corta (`c2f`, `km2mi`, …) con una
+  `Conversion(funcion, descripcion)`, que es un `NamedTuple`. Es la única fuente de verdad
+  sobre qué conversiones existen.
+- **`convertir(valor, clave)`**: punto de entrada único. Valida, convierte y redondea a
+  `DECIMALES` (4) decimales.
+- **Errores de dominio**:
+
+  ```text
+  ValueError
+  └── ErrorConversion           # valor inválido: no finito o fuera del límite físico
+      └── ConversionNoSoportada # la clave no está en CONVERSIONES
+  ```
+
+  Capturar `ErrorConversion` cubre todos los errores del conversor. Como hereda de
+  `ValueError`, el código que ya capturaba `ValueError` sigue funcionando.
+
+### `cli.py`
+
+Interfaz con `argparse`. `main(argv=None)` **devuelve** un código de salida en lugar de
+terminar el proceso, para poder probarla pasando `argv`:
+
+| Constante | Código | Cuándo |
+|---|---|---|
+| `SALIDA_OK` | 0 | Conversión correcta, `--listar` o `--help` |
+| `SALIDA_ERROR_CONVERSION` | 1 | `convertir()` lanzó `ErrorConversion` |
+| `SALIDA_ERROR_USO` | 2 | Faltan argumentos o son inválidos |
+
+`main()` también captura el `SystemExit` que lanza argparse ante argumentos inválidos o
+`--help`, y devuelve su código. `--listar` lee las descripciones directamente de
+`CONVERSIONES`.
 
 ## Agregar una conversión
 
-1. Escribe la función en `src/conversor.py`.
-2. Regístrala en `CONVERSIONES`.
+1. Escribe la función en `src/conversor.py`: valida el límite con `_exigir_minimo()` y
+   documenta la fórmula en su docstring.
+2. Regístrala en `CONVERSIONES` con una clave corta y una descripción.
+3. Agrega sus casos a las pruebas parametrizadas de `tests/test_conversor.py` (ver
+   [pruebas.md](pruebas.md#agregar-pruebas)).
 
-La CLI y `--listar` la detectan automáticamente. Agrega también sus casos a las pruebas
-parametrizadas de `tests/test_conversor.py`.
+La CLI y `--listar` la detectan automáticamente.
 
-## Pruebas y bugs conocidos
+## Decisiones de diseño
 
-Los bugs conocidos se documentan como pruebas marcadas con
-`pytest.mark.xfail(strict=True, reason="Bug #N: ...")`. Mientras el bug exista, la prueba
-aparece como `XFAIL` y la suite pasa. El PR que corrige el bug debe quitar la marca: si se
-olvida, la prueba aparece como `XPASS(strict)` y la suite falla.
-
-Para ver qué bugs siguen abiertos:
-
-```bash
-python -m pytest -rx
-```
-
-## Cobertura
-
-La cobertura de sentencias y ramas de `src/` se mide con pytest-cov, configurado en
-`pyproject.toml`. Se excluye el bloque `if __name__ == "__main__":` de `cli.py`, porque las
-pruebas llaman a `main(argv)` directamente. La cobertura actual es del 100 %.
-
-```bash
-python -m pytest --cov                     # reporte en la terminal con líneas faltantes
-python -m pytest --cov --cov-report=html   # reporte navegable en htmlcov/index.html
-```
+- **Una función por conversión en lugar de una fábrica genérica**: las fórmulas se leen
+  directamente en el código (KISS). Ver
+  [PR #9](https://github.com/zelski/conversion_temperatura/pull/9).
+- **Excepciones propias en lugar de `KeyError`/`ValueError` sueltos**: la CLI captura un único
+  tipo y los mensajes no necesitan limpieza. Ver
+  [PR #7](https://github.com/zelski/conversion_temperatura/pull/7).
+- **`main()` devuelve el código en lugar de llamar a `sys.exit()`**: permite probar la CLI
+  sin lanzar procesos. Se descartó `exit_on_error=False` de argparse porque no cubre
+  `--help`. Ver [PR #8](https://github.com/zelski/conversion_temperatura/pull/8).
