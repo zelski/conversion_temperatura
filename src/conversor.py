@@ -1,11 +1,12 @@
 """Funciones de conversión de unidades y registro de conversiones disponibles."""
 
 import math
-from typing import Callable, NamedTuple
+from collections.abc import Callable
+from typing import NamedTuple
 
-# Factores de conversión (valores de referencia internacionales)
-FACTOR_KM_A_MILLAS = 0.621371
-FACTOR_KG_A_LIBRAS = 2.20462
+# Definiciones exactas del acuerdo internacional de 1959 sobre la yarda y la libra
+KM_POR_MILLA = 1.609344
+KG_POR_LIBRA = 0.45359237
 
 # Límite físico inferior para temperaturas (cero absoluto) en cada escala
 CERO_ABSOLUTO_C = -273.15
@@ -56,31 +57,30 @@ def fahrenheit_a_celsius(fahrenheit: float) -> float:
     return (fahrenheit - 32) * 5 / 9
 
 
-def km_a_millas(km: float) -> float:
-    """mi = km × FACTOR_KM_A_MILLAS. Rechaza distancias negativas."""
-    _exigir_minimo(km, 0, MENSAJE_DISTANCIA_NEGATIVA)
-    return km * FACTOR_KM_A_MILLAS
+def km_a_millas(kilometros: float) -> float:
+    """mi = km / KM_POR_MILLA. Rechaza distancias negativas."""
+    _exigir_minimo(kilometros, 0, MENSAJE_DISTANCIA_NEGATIVA)
+    return kilometros / KM_POR_MILLA
 
 
 def millas_a_km(millas: float) -> float:
-    """km = mi / FACTOR_KM_A_MILLAS. Rechaza distancias negativas."""
+    """km = mi × KM_POR_MILLA. Rechaza distancias negativas."""
     _exigir_minimo(millas, 0, MENSAJE_DISTANCIA_NEGATIVA)
-    return millas / FACTOR_KM_A_MILLAS
+    return millas * KM_POR_MILLA
 
 
-def kg_a_libras(kg: float) -> float:
-    """lb = kg × FACTOR_KG_A_LIBRAS. Rechaza masas negativas."""
-    _exigir_minimo(kg, 0, MENSAJE_MASA_NEGATIVA)
-    return kg * FACTOR_KG_A_LIBRAS
+def kg_a_libras(kilogramos: float) -> float:
+    """lb = kg / KG_POR_LIBRA. Rechaza masas negativas."""
+    _exigir_minimo(kilogramos, 0, MENSAJE_MASA_NEGATIVA)
+    return kilogramos / KG_POR_LIBRA
 
 
 def libras_a_kg(libras: float) -> float:
-    """kg = lb / FACTOR_KG_A_LIBRAS. Rechaza masas negativas."""
+    """kg = lb × KG_POR_LIBRA. Rechaza masas negativas."""
     _exigir_minimo(libras, 0, MENSAJE_MASA_NEGATIVA)
-    return libras / FACTOR_KG_A_LIBRAS
+    return libras * KG_POR_LIBRA
 
 
-# Registro central: clave de conversión -> Conversion(funcion, descripcion)
 CONVERSIONES: dict[str, Conversion] = {
     "c2f": Conversion(celsius_a_fahrenheit, "Celsius a Fahrenheit"),
     "f2c": Conversion(fahrenheit_a_celsius, "Fahrenheit a Celsius"),
@@ -97,7 +97,7 @@ def convertir(valor: float, clave: str) -> float:
     Lanza ErrorConversion si el valor no es finito o viola un límite físico, y
     ConversionNoSoportada si la clave no está en CONVERSIONES.
     """
-    # nan e inf pasarían todas las validaciones de límites, así que se rechazan aquí
+    # nan e inf positivo pasarían las validaciones de límites, así que se rechazan aquí
     if not math.isfinite(valor):
         raise ErrorConversion("El valor debe ser un número finito")
     if clave not in CONVERSIONES:

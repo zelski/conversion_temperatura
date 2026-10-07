@@ -31,7 +31,6 @@ def test_convertir_valores_conocidos(clave, valor, esperado):
     assert convertir(valor, clave) == pytest.approx(esperado)
 
 
-@pytest.mark.xfail(strict=True, reason="Bug #10: factores de distancia y masa truncados")
 @pytest.mark.parametrize(
     "clave, valor, esperado",
     [
