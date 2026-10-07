@@ -12,7 +12,7 @@
 ├── tests/                      # Pruebas con pytest
 │   ├── test_cli.py             # Pruebas de la CLI (main y códigos de salida)
 │   └── test_conversor.py       # Pruebas de las conversiones
-├── pyproject.toml              # Configuración de pytest
+├── pyproject.toml              # Configuración de pytest y coverage
 └── requirements.txt
 ```
 
@@ -58,4 +58,15 @@ Para ver qué bugs siguen abiertos:
 
 ```bash
 python -m pytest -rx
+```
+
+## Cobertura
+
+La cobertura de sentencias y ramas de `src/` se mide con pytest-cov, configurado en
+`pyproject.toml`. Se excluye el bloque `if __name__ == "__main__":` de `cli.py`, porque las
+pruebas llaman a `main(argv)` directamente. La cobertura actual es del 100 %.
+
+```bash
+python -m pytest --cov                     # reporte en la terminal con líneas faltantes
+python -m pytest --cov --cov-report=html   # reporte navegable en htmlcov/index.html
 ```

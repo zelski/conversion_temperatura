@@ -2,3 +2,13 @@
 # Agrega src/ al sys.path para que las pruebas importen los módulos directamente
 pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+# Mide sentencias y ramas solo del código fuente
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+# El arranque por consola no se ejecuta desde las pruebas, que llaman a main(argv)
+exclude_also = ['if __name__ == "__main__":']

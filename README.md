@@ -20,6 +20,8 @@ python src/cli.py --listar     # muestra las conversiones disponibles
 
 ```bash
 python -m pytest
+python -m pytest --cov                        # con reporte de cobertura (sentencias y ramas)
+python -m pytest --cov --cov-report=html      # reporte navegable en htmlcov/index.html
 ```
 
 ## Documentación
