@@ -55,7 +55,9 @@ ErrorConversion (o subclase) ──► "Error: <mensaje>" en stderr, código 1 (
 
 - **Funciones de conversión** (`celsius_a_fahrenheit`, `km_a_millas`, …): cada una valida su
   límite físico con `_exigir_minimo()` y aplica su fórmula. Los factores y límites son
-  constantes con nombre (`FACTOR_KM_A_MILLAS`, `CERO_ABSOLUTO_C`, …).
+  constantes con nombre (`KM_POR_MILLA`, `CERO_ABSOLUTO_C`, …). Los factores de distancia y
+  masa guardan las definiciones exactas (1 mi = 1.609344 km, 1 lb = 0.45359237 kg) y cada
+  par de funciones inversas multiplica o divide por la misma constante.
 - **Registro `CONVERSIONES`**: asocia una clave corta (`c2f`, `km2mi`, …) con una
   `Conversion(funcion, descripcion)`, que es un `NamedTuple`. Es la única fuente de verdad
   sobre qué conversiones existen.

@@ -12,6 +12,13 @@ usa `conversor.py` o en los scripts que llaman a la CLI.
 
 ### Corregido
 
+- Las conversiones de distancia y masa usaban factores truncados (`0.621371` y `2.20462`) que
+  alteraban los decimales mostrados con valores grandes: `1000 kg2lb` daba `2204.62` en lugar
+  de `2204.6226`. Ahora se usan las definiciones exactas (1 mi = 1.609344 km,
+  1 lb = 0.45359237 kg). **⚠️ Rompe el contrato**: las constantes `FACTOR_KM_A_MILLAS` y
+  `FACTOR_KG_A_LIBRAS` pasan a ser `KM_POR_MILLA` y `KG_POR_LIBRA`, y los parámetros `km` y
+  `kg` pasan a llamarse `kilometros` y `kilogramos`.
+  ([#18](https://github.com/zelski/conversion_temperatura/pull/18))
 - `fahrenheit_a_celsius` multiplicaba por 9/5 en lugar de 5/9 (`212 °F` daba `324`) y
   rechazaba temperaturas válidas porque validaba el resultado en vez de la entrada.
   ([#5](https://github.com/zelski/conversion_temperatura/pull/5))
