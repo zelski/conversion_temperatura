@@ -34,7 +34,7 @@ documentación. No hay paquete instalable:
 python src/cli.py 100 c2f
         │
         ▼
-cli.main(argv) ──── argparse valida los argumentos ──── error ──► código 2 (SALIDA_ERROR_USO)
+cli.main(argv) ──── valida argumentos y VALOR numérico ── error ──► código 2 (SALIDA_ERROR_USO)
         │
         ▼
 conversor.convertir(100.0, "c2f")
@@ -97,11 +97,23 @@ terminar el proceso, para poder probarla pasando `argv`:
 |---|---|---|
 | `SALIDA_OK` | 0 | Conversión correcta, `--listar` o `--help` |
 | `SALIDA_ERROR_CONVERSION` | 1 | `convertir()` lanzó `ErrorConversion` |
-| `SALIDA_ERROR_USO` | 2 | Faltan argumentos o son inválidos |
+| `SALIDA_ERROR_USO` | 2 | Faltan argumentos, VALOR no es un número o hay argumentos no reconocidos |
 
-`main()` también captura el `SystemExit` que lanza argparse ante argumentos inválidos o
-`--help`, y devuelve su código. `--listar` lee las descripciones directamente de
-`CONVERSIONES`.
+`main()` también captura el `SystemExit` que lanza argparse con `--help` o ante argumentos
+que no sabe interpretar, y devuelve su código (normalizado a `int`). `--listar` lee las
+descripciones directamente de `CONVERSIONES`.
+
+**Mensajes en español.** argparse genera sus textos en inglés, así que la CLI los controla:
+
+- `_ParserEnEspanol` traduce el prefijo `usage:` a `uso:` y reemplaza los errores internos
+  de argparse, que son raros (por ejemplo, `--listar=1`), por un mensaje genérico en español.
+- La ayuda define sus propios grupos (`argumentos`, `opciones`) y su propio `-h/--help`.
+- `main()` valida por su cuenta los errores de uso habituales, con mensajes específicos:
+  argumentos no reconocidos (vía `parse_known_args`), argumentos faltantes y un VALOR que no
+  es número. Por eso VALOR se recibe como texto y se convierte con `float()` en `main()`.
+
+Todos los errores de uso escriben la línea `uso:` y el mensaje en stderr; stdout queda
+reservado para los resultados, `--listar` y `--help`.
 
 ## Agregar una conversión
 

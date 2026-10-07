@@ -6,8 +6,8 @@
 import pytest
 
 from cli import SALIDA_ERROR_CONVERSION, SALIDA_ERROR_USO, SALIDA_OK, main
+import cli
 from conversor import CONVERSIONES
-
 
 
 @pytest.mark.parametrize(
@@ -43,24 +43,10 @@ def test_error_de_uso_devuelve_2_sin_lanzar(capsys, argv):
 
 def test_ayuda_devuelve_0_sin_lanzar(capsys):
     assert main(["--help"]) == SALIDA_OK
-    assert "usage:" in capsys.readouterr().out
+    assert "uso:" in capsys.readouterr().out
 
 
-BUG_USO_EN_STDOUT = pytest.mark.xfail(
-    strict=True, reason="Bug #13: la línea de uso de un error sale por stdout"
-)
-BUG_INGLES = pytest.mark.xfail(strict=True, reason="Bug #14: mensajes de argparse en inglés")
-
-
-@pytest.mark.parametrize(
-    "argv",
-    [
-        pytest.param([], marks=BUG_USO_EN_STDOUT),
-        pytest.param(["5"], marks=BUG_USO_EN_STDOUT),
-        ["abc", "c2f"],
-        ["5", "c2f", "-x"],
-    ],
-)
+@pytest.mark.parametrize("argv", [[], ["5"], ["abc", "c2f"], ["5", "c2f", "-x"]])
 def test_error_de_uso_escribe_solo_en_stderr(capsys, argv):
     main(argv)
     salida = capsys.readouterr()
@@ -68,7 +54,6 @@ def test_error_de_uso_escribe_solo_en_stderr(capsys, argv):
     assert salida.err != ""
 
 
-@BUG_INGLES
 @pytest.mark.parametrize(
     "argv, mensaje",
     [
@@ -84,7 +69,6 @@ def test_errores_de_uso_en_espanol(capsys, argv, mensaje):
     assert mensaje in error
 
 
-@BUG_INGLES
 def test_ayuda_en_espanol(capsys):
     main(["--help"])
     ayuda = capsys.readouterr().out
@@ -93,7 +77,17 @@ def test_ayuda_en_espanol(capsys):
     assert not any(texto in ayuda for texto in ("usage", "options", "show this help"))
 
 
-@pytest.mark.xfail(strict=True, reason="Bug #15: la ayuda anuncia un comando 'conversor' inexistente")
 def test_ayuda_muestra_el_comando_real(capsys):
     main(["--help"])
     assert capsys.readouterr().out.startswith("uso: python src/cli.py ")
+
+
+@pytest.mark.parametrize("codigo, esperado", [(0, 0), (2, 2), ("mensaje", 2), (None, 2)])
+def test_main_normaliza_el_codigo_de_systemexit(monkeypatch, codigo, esperado):
+    # SystemExit.code puede ser int, str o None; main() siempre devuelve un int
+    class ParserQueTermina:
+        def parse_known_args(self, argv):
+            raise SystemExit(codigo)
+
+    monkeypatch.setattr(cli, "construir_parser", ParserQueTermina)
+    assert main([]) == esperado

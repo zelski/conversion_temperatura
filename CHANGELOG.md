@@ -12,6 +12,18 @@ usa `conversor.py` o en los scripts que llaman a la CLI.
 
 ### Corregido
 
+- **⚠️ Rompe el contrato** (salida de la CLI): los mensajes que generaba argparse salían en
+  inglés (`usage:`, `invalid float value`, `unrecognized arguments`, `show this help…`).
+  Ahora toda la CLI está en español: `uso:`, `Error: el valor debe ser un número: 'abc'`,
+  `Error: argumentos no reconocidos: -x` y la ayuda con secciones `argumentos` y `opciones`.
+  Los códigos de salida no cambian.
+  ([#20](https://github.com/zelski/conversion_temperatura/pull/20))
+- La ayuda anunciaba un comando `conversor` que no existe desde el PR #3; ahora muestra
+  `python src/cli.py`. ([#20](https://github.com/zelski/conversion_temperatura/pull/20))
+- Cuando faltaban argumentos, la línea de uso salía por stdout y el error por stderr. Ahora
+  todos los errores de uso van solo a stderr.
+  ([#20](https://github.com/zelski/conversion_temperatura/pull/20))
+
 - Un valor finito muy grande podía desbordarse a `inf` al convertir: `1e308 c2f` imprimía
   `inf` con código 0. Ahora se rechaza con `ErrorConversion` (código 1).
   ([#19](https://github.com/zelski/conversion_temperatura/pull/19))
