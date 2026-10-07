@@ -3,6 +3,7 @@
 # Contiene las funciones de conversión y el registro de conversiones disponibles.
 
 import math
+from typing import Callable, NamedTuple
 
 # Factores de conversión (valores de referencia internacionales)
 FACTOR_KM_A_MILLAS = 0.621371
@@ -27,6 +28,12 @@ class ErrorConversion(ValueError):
 class ConversionNoSoportada(ErrorConversion):
     # La clave de conversión solicitada no está registrada
     pass
+
+
+class Conversion(NamedTuple):
+    # Entrada del registro: la función que convierte y su descripción legible
+    funcion: Callable[[float], float]
+    descripcion: str
 
 
 def _exigir_minimo(valor, minimo, mensaje):
@@ -65,14 +72,14 @@ def libras_a_kg(libras):
     return libras / FACTOR_KG_A_LIBRAS
 
 
-# Registro central: clave de conversión -> (función, descripción)
+# Registro central: clave de conversión -> Conversion(funcion, descripcion)
 CONVERSIONES = {
-    "c2f": (celsius_a_fahrenheit, "Celsius a Fahrenheit"),
-    "f2c": (fahrenheit_a_celsius, "Fahrenheit a Celsius"),
-    "km2mi": (km_a_millas, "Kilómetros a millas"),
-    "mi2km": (millas_a_km, "Millas a kilómetros"),
-    "kg2lb": (kg_a_libras, "Kilogramos a libras"),
-    "lb2kg": (libras_a_kg, "Libras a kilogramos"),
+    "c2f": Conversion(celsius_a_fahrenheit, "Celsius a Fahrenheit"),
+    "f2c": Conversion(fahrenheit_a_celsius, "Fahrenheit a Celsius"),
+    "km2mi": Conversion(km_a_millas, "Kilómetros a millas"),
+    "mi2km": Conversion(millas_a_km, "Millas a kilómetros"),
+    "kg2lb": Conversion(kg_a_libras, "Kilogramos a libras"),
+    "lb2kg": Conversion(libras_a_kg, "Libras a kilogramos"),
 }
 
 
@@ -86,6 +93,6 @@ def convertir(valor, clave):
         raise ConversionNoSoportada(
             f"Conversión no soportada: {clave}. Usa una de: {disponibles}"
         )
-    funcion, _ = CONVERSIONES[clave]
+    conversion = CONVERSIONES[clave]
     # Redondeamos a 4 decimales para una salida consistente
-    return round(funcion(valor), 4)
+    return round(conversion.funcion(valor), 4)
