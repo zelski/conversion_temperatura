@@ -41,7 +41,11 @@ def listar_conversiones():
 
 def main(argv=None):
     parser = construir_parser()
-    args = parser.parse_args(argv)
+    try:
+        args = parser.parse_args(argv)
+    except SystemExit as salida:
+        # argparse ya imprimió la ayuda o el error; solo devolvemos su código
+        return salida.code
 
     if args.listar:
         listar_conversiones()
