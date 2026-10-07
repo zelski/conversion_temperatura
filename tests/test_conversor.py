@@ -87,6 +87,25 @@ def test_convertir_rechaza_valores_no_finitos(valor):
         convertir(valor, "km2mi")
 
 
+@pytest.mark.xfail(strict=True, reason="Bug #12: las funciones públicas aceptan nan e inf")
+@pytest.mark.parametrize("clave", sorted(CONVERSIONES))
+@pytest.mark.parametrize("valor", [math.nan, math.inf])
+def test_funciones_de_conversion_rechazan_valores_no_finitos(clave, valor):
+    # Las funciones son públicas: deben dar la misma garantía que convertir()
+    with pytest.raises(ErrorConversion):
+        CONVERSIONES[clave].funcion(valor)
+
+
+@pytest.mark.xfail(strict=True, reason="Bug #11: un valor finito puede desbordarse a inf")
+@pytest.mark.parametrize(
+    "clave, valor",
+    [("c2f", 1e308), ("f2c", 1.7e308), ("mi2km", 1.5e308), ("kg2lb", 1e308)],
+)
+def test_convertir_rechaza_resultados_que_se_desbordan(clave, valor):
+    with pytest.raises(ErrorConversion):
+        convertir(valor, clave)
+
+
 def test_convertir_clave_invalida():
     # Una clave inexistente debe producir ConversionNoSoportada que mencione la clave
     with pytest.raises(ConversionNoSoportada, match="leguas2parsecs"):
