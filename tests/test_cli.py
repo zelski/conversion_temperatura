@@ -5,7 +5,7 @@
 
 import pytest
 
-from cli import main
+from cli import SALIDA_ERROR_CONVERSION, SALIDA_ERROR_USO, SALIDA_OK, main
 from conversor import CONVERSIONES
 
 
@@ -15,19 +15,19 @@ from conversor import CONVERSIONES
     [(["100", "c2f"], "212.0"), (["-40", "c2f"], "-40.0")],
 )
 def test_conversion_exitosa_imprime_resultado(capsys, argv, esperado):
-    assert main(argv) == 0
+    assert main(argv) == SALIDA_OK
     assert capsys.readouterr().out.strip() == esperado
 
 
 def test_listar_muestra_todas_las_claves(capsys):
-    assert main(["--listar"]) == 0
+    assert main(["--listar"]) == SALIDA_OK
     salida = capsys.readouterr().out
     assert all(clave in salida for clave in CONVERSIONES)
 
 
 @pytest.mark.parametrize("argv", [["5", "xyz"], ["-1", "km2mi"], ["nan", "c2f"]])
 def test_error_de_conversion_devuelve_1(capsys, argv):
-    assert main(argv) == 1
+    assert main(argv) == SALIDA_ERROR_CONVERSION
     assert capsys.readouterr().err.startswith("Error: ")
 
 
@@ -38,9 +38,9 @@ def test_mensaje_de_clave_invalida_sin_comillas(capsys):
 
 @pytest.mark.parametrize("argv", [[], ["5"], ["abc", "c2f"]])
 def test_error_de_uso_devuelve_2_sin_lanzar(capsys, argv):
-    assert main(argv) == 2
+    assert main(argv) == SALIDA_ERROR_USO
 
 
 def test_ayuda_devuelve_0_sin_lanzar(capsys):
-    assert main(["--help"]) == 0
+    assert main(["--help"]) == SALIDA_OK
     assert "usage:" in capsys.readouterr().out
