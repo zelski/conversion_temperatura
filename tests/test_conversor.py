@@ -9,8 +9,6 @@ import pytest
 
 from conversor import CONVERSIONES, ConversionNoSoportada, ErrorConversion, convertir
 
-BUG_CERO_NEGATIVO = pytest.mark.xfail(strict=True, reason="Bug #9: se devuelve -0.0")
-
 PARES_INVERSOS = [("c2f", "f2c"), ("km2mi", "mi2km"), ("kg2lb", "lb2kg")]
 
 
@@ -86,6 +84,7 @@ def test_errores_de_dominio_son_value_error():
     assert issubclass(ErrorConversion, ValueError)
 
 
-@BUG_CERO_NEGATIVO
-def test_convertir_no_devuelve_cero_negativo():
-    assert math.copysign(1, convertir(-0.0, "km2mi")) == 1
+@pytest.mark.parametrize("clave, valor", [("km2mi", -0.0), ("c2f", -17.77778)])
+def test_convertir_no_devuelve_cero_negativo(clave, valor):
+    # -17.77778 °C da -0.000004 °F, que al redondear quedaría en -0.0
+    assert math.copysign(1, convertir(valor, clave)) == 1
