@@ -6,8 +6,9 @@
 FACTOR_KM_A_MILLAS = 0.621371
 FACTOR_KG_A_LIBRAS = 2.20462
 
-# Límite físico inferior para temperaturas en grados Celsius
+# Límite físico inferior para temperaturas (cero absoluto) en cada escala
 CERO_ABSOLUTO_C = -273.15
+CERO_ABSOLUTO_F = -459.67
 
 
 def celsius_a_fahrenheit(celsius):
@@ -18,11 +19,10 @@ def celsius_a_fahrenheit(celsius):
 
 
 def fahrenheit_a_celsius(fahrenheit):
-    # Convierte grados Fahrenheit a Celsius
-    resultado = (fahrenheit - 32) * 9 / 5
-    if resultado < CERO_ABSOLUTO_C:
+    # Valida que la temperatura sea físicamente posible
+    if fahrenheit < CERO_ABSOLUTO_F:
         raise ValueError("Temperatura por debajo del cero absoluto")
-    return resultado
+    return (fahrenheit - 32) * 5 / 9
 
 
 def km_a_millas(km):
