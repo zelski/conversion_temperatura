@@ -26,4 +26,7 @@ To add a conversion: write the function in `src/conversor.py` and register it in
 
 ## Tests
 
-`tests/test_conversor.py` is explicitly partial — it covers only `celsius_a_fahrenheit`, `km_a_millas`, and the invalid-key path of `convertir`. The other conversions and `cli.py` are untested.
+- `tests/test_conversor.py` — known values, round trips, physical limits, non-finite values and invalid keys for every conversion, through `convertir()` and `CONVERSIONES`.
+- `tests/test_cli.py` — exercises `main(argv)` and its exit codes, using `capsys` for output.
+
+Known bugs are documented as tests marked `pytest.mark.xfail(strict=True, reason="Bug #N: ...")`; they show as `XFAIL` while the bug exists. A PR that fixes a bug must remove its `xfail` mark in the same change — otherwise the test reports `XPASS(strict)` and the suite fails.
