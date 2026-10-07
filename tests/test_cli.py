@@ -8,7 +8,6 @@ import pytest
 from cli import main
 from conversor import CONVERSIONES
 
-BUG_NO_FINITOS = pytest.mark.xfail(strict=True, reason="Bug #2: nan e inf no se rechazan")
 BUG_SYSTEMEXIT = pytest.mark.xfail(
     strict=True, reason="Bug #5: main() lanza SystemExit en vez de devolver el código"
 )
@@ -29,14 +28,7 @@ def test_listar_muestra_todas_las_claves(capsys):
     assert all(clave in salida for clave in CONVERSIONES)
 
 
-@pytest.mark.parametrize(
-    "argv",
-    [
-        ["5", "xyz"],
-        ["-1", "km2mi"],
-        pytest.param(["nan", "c2f"], marks=BUG_NO_FINITOS),
-    ],
-)
+@pytest.mark.parametrize("argv", [["5", "xyz"], ["-1", "km2mi"], ["nan", "c2f"]])
 def test_error_de_conversion_devuelve_1(capsys, argv):
     assert main(argv) == 1
     assert capsys.readouterr().err.startswith("Error: ")

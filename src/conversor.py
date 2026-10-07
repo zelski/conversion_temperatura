@@ -2,6 +2,8 @@
 # Módulo principal del conversor de unidades.
 # Contiene las funciones de conversión y el registro de conversiones disponibles.
 
+import math
+
 # Factores de conversión (valores de referencia internacionales)
 FACTOR_KM_A_MILLAS = 0.621371
 FACTOR_KG_A_LIBRAS = 2.20462
@@ -64,6 +66,9 @@ CONVERSIONES = {
 
 def convertir(valor, clave):
     # Punto de entrada único para todas las conversiones
+    # nan e inf pasarían todas las validaciones de límites, así que se rechazan aquí
+    if not math.isfinite(valor):
+        raise ValueError("El valor debe ser un número finito")
     if clave not in CONVERSIONES:
         disponibles = ", ".join(sorted(CONVERSIONES))
         raise KeyError(f"Conversión no soportada: {clave}. Usa una de: {disponibles}")

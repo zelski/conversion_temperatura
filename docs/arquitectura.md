@@ -28,7 +28,8 @@ El código vive en `src/` como módulos planos, separado de las pruebas y la doc
   físicos (cero absoluto, distancias o masas negativas) lanzando `ValueError`. El diccionario
   `CONVERSIONES` es el registro central que asocia una clave corta (`c2f`, `km2mi`, …) con
   `(función, descripción)`. `convertir(valor, clave)` es el punto de entrada único: lanza
-  `KeyError` para claves desconocidas y redondea el resultado a 4 decimales.
+  `ValueError` para valores no finitos (`nan`, `inf`), `KeyError` para claves desconocidas y
+  redondea el resultado a 4 decimales.
 - **`cli.py`**: interfaz con `argparse`. `main(argv=None)` devuelve un código de salida
   (0 correcto, 1 error de conversión, 2 faltan argumentos) en lugar de llamar a `sys.exit`,
   para poder probarla pasando `argv`. `--listar` lee las descripciones de `CONVERSIONES`.

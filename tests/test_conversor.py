@@ -9,7 +9,6 @@ import pytest
 
 from conversor import CONVERSIONES, convertir
 
-BUG_NO_FINITOS = pytest.mark.xfail(strict=True, reason="Bug #2: nan e inf no se rechazan")
 BUG_CERO_NEGATIVO = pytest.mark.xfail(strict=True, reason="Bug #9: se devuelve -0.0")
 
 PARES_INVERSOS = [("c2f", "f2c"), ("km2mi", "mi2km"), ("kg2lb", "lb2kg")]
@@ -70,14 +69,7 @@ def test_convertir_acepta_el_limite_fisico_exacto(clave, valor):
     convertir(valor, clave)
 
 
-@pytest.mark.parametrize(
-    "valor",
-    [
-        pytest.param(math.nan, marks=BUG_NO_FINITOS, id="nan"),
-        pytest.param(math.inf, marks=BUG_NO_FINITOS, id="inf"),
-        pytest.param(-math.inf, id="-inf"),
-    ],
-)
+@pytest.mark.parametrize("valor", [math.nan, math.inf, -math.inf])
 def test_convertir_rechaza_valores_no_finitos(valor):
     with pytest.raises(ValueError):
         convertir(valor, "km2mi")
