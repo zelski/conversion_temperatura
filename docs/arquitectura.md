@@ -98,10 +98,32 @@ terminar el proceso, para poder probarla pasando `argv`:
 | `SALIDA_OK` | 0 | Conversión correcta, `--listar` o `--help` |
 | `SALIDA_ERROR_CONVERSION` | 1 | `convertir()` lanzó `ErrorConversion` |
 | `SALIDA_ERROR_USO` | 2 | Faltan argumentos, VALOR no es un número o hay argumentos no reconocidos |
+| `SALIDA_ERROR_INTERNO` | 3 | Excepción inesperada (un bug); solo vía `ejecutar_desde_consola()` |
 
 `main()` también captura el `SystemExit` que lanza argparse con `--help` o ante argumentos
 que no sabe interpretar, y devuelve su código (normalizado a `int`). `--listar` lee las
-descripciones directamente de `CONVERSIONES`.
+descripciones directamente de `CONVERSIONES`. La clave se normaliza con
+`strip().lower()` antes de llamar a `convertir()`; la API de `conversor.py` sigue siendo
+estricta.
+
+**Punto de entrada de la consola.** `if __name__ == "__main__"` llama a
+`ejecutar_desde_consola()` y no a `main()` directamente. Esa función:
+
+- Reconfigura stdout y stderr con `errors="replace"`, para que una consola que no admite
+  acentos muestre `?` en lugar de fallar con `UnicodeEncodeError`.
+- Convierte cualquier excepción inesperada en `SALIDA_ERROR_INTERNO` (3) después de imprimir
+  el traceback. Así un script puede distinguir un bug (3) de un error de conversión (1).
+  `main()` no la captura, para que las pruebas vean la excepción real.
+
+**Mensajes de ayuda para errores frecuentes**:
+
+- Un negativo que argparse no reconoce como número (`-1e5`, `-5.`, `-inf`) llega como
+  "argumento no reconocido". Si se puede convertir a número, el mensaje explica que debe ir
+  después de `--`.
+- Con coma decimal (`36,6`) se sugiere el punto. No se acepta la coma porque `1,000` es
+  ambiguo.
+- Un texto que `float()` desborda a `inf` (`1e400`) se reporta como "fuera del rango
+  representable" con el texto original, en lugar del `inf` que el usuario no escribió.
 
 **Mensajes en español.** argparse genera sus textos en inglés, así que la CLI los controla:
 

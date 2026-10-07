@@ -45,7 +45,17 @@ python src/cli.py --help         # muestra la ayuda
 | `kg2lb` | Kilogramos → libras | ≥ 0 |
 | `lb2kg` | Libras → kilogramos | ≥ 0 |
 
-Los resultados se redondean a 4 decimales.
+Los resultados se redondean a 4 decimales. La clave no distingue mayúsculas (`C2F` funciona
+igual que `c2f`).
+
+**Formato de VALOR**: usa punto decimal (`36.6`, no `36,6`). Los negativos simples como
+`-40` o `-4.5` funcionan directamente. Los que llevan exponente o terminan en punto
+(`-4.5e1`, `-5.`) deben ir después de `--` para que no se confundan con una opción:
+
+```console
+$ python src/cli.py -- -4.5e1 c2f
+-49.0
+```
 
 ### Ejemplos
 
@@ -74,6 +84,7 @@ Error: el valor debe ser un número: 'abc'
 | 0 | Conversión correcta (o `--listar` / `--help`) |
 | 1 | Error de conversión: valor fuera del límite físico, `nan`/`inf`, resultado demasiado grande o clave inexistente |
 | 2 | Error de uso: faltan argumentos, el valor no es un número o hay argumentos no reconocidos |
+| 3 | Error interno inesperado (un bug): se muestra el traceback para reportarlo |
 
 Los mensajes de error se escriben en la salida de error (stderr).
 

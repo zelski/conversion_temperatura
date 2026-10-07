@@ -10,7 +10,26 @@ usa `conversor.py` o en los scripts que llaman a la CLI.
 
 ## 2026-10-06
 
+### Agregado
+
+- Código de salida `3` (`SALIDA_ERROR_INTERNO`) para fallos inesperados: antes un bug salía
+  con código 1, igual que un error de conversión. Se sigue mostrando el traceback.
+  ([#21](https://github.com/zelski/conversion_temperatura/pull/21))
+- La clave de conversión no distingue mayúsculas ni espacios en la CLI (`C2F`, ` c2f `).
+  ([#21](https://github.com/zelski/conversion_temperatura/pull/21))
+
 ### Corregido
+
+- Mensajes más claros en tres errores frecuentes de la CLI
+  ([#21](https://github.com/zelski/conversion_temperatura/pull/21)):
+  - `-1e5 c2f` decía "argumentos no reconocidos"; ahora explica que los negativos con
+    exponente van después de `--`.
+  - `36,6 c2f` sugiere usar punto decimal.
+  - `1e400 c2f` decía "número finito: inf"; ahora dice que el valor está fuera del rango
+    representable.
+- La CLI fallaba con `UnicodeEncodeError` si la salida no admitía acentos (por ejemplo,
+  `PYTHONIOENCODING=ascii`); ahora sustituye esos caracteres por `?`.
+  ([#21](https://github.com/zelski/conversion_temperatura/pull/21))
 
 - **⚠️ Rompe el contrato** (salida de la CLI): los mensajes que generaba argparse salían en
   inglés (`usage:`, `invalid float value`, `unrecognized arguments`, `show this help…`).

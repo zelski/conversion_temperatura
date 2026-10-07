@@ -3,6 +3,7 @@
 # Las pruebas marcadas con xfail estricto documentan bugs conocidos: el PR que corrige
 # cada bug debe quitar su marca.
 
+import io
 import os
 import pathlib
 import subprocess
@@ -100,7 +101,6 @@ def test_main_normaliza_el_codigo_de_systemexit(monkeypatch, codigo, esperado):
     assert main([]) == esperado
 
 
-@pytest.mark.xfail(strict=True, reason="Hallazgo 1: un negativo especial se toma por opción")
 @pytest.mark.parametrize("valor", ["-1e5", "-5.", "-inf"])
 def test_negativo_especial_sugiere_doble_guion(capsys, valor):
     assert main([valor, "c2f"]) == SALIDA_ERROR_USO
@@ -109,19 +109,16 @@ def test_negativo_especial_sugiere_doble_guion(capsys, valor):
     assert f"python src/cli.py -- {valor} CLAVE" in error
 
 
-@pytest.mark.xfail(strict=True, reason="Hallazgo 2: la coma decimal se rechaza sin pista")
 def test_coma_decimal_sugiere_punto(capsys):
     assert main(["36,6", "c2f"]) == SALIDA_ERROR_USO
     assert "usa punto decimal, por ejemplo 36.6" in capsys.readouterr().err
 
 
-@pytest.mark.xfail(strict=True, reason="Hallazgo 3: un número enorme se reporta como inf")
 def test_valor_que_desborda_float_se_reporta_tal_cual(capsys):
     assert main(["1e400", "c2f"]) == SALIDA_ERROR_CONVERSION
     assert "fuera del rango representable: '1e400'" in capsys.readouterr().err
 
 
-@pytest.mark.xfail(strict=True, reason="Hallazgo 4: un fallo interno sale con el código 1")
 def test_error_interno_devuelve_codigo_propio(monkeypatch, capsys):
     def falla(valor, clave):
         raise RuntimeError("fallo interno simulado")
@@ -133,7 +130,6 @@ def test_error_interno_devuelve_codigo_propio(monkeypatch, capsys):
     assert "Error interno inesperado" in error
 
 
-@pytest.mark.xfail(strict=True, reason="Hallazgo 5: traceback si la salida no admite acentos")
 def test_salida_sin_unicode_no_falla():
     entorno = {**os.environ, "PYTHONIOENCODING": "ascii"}
     proceso = subprocess.run(
@@ -143,8 +139,16 @@ def test_salida_sin_unicode_no_falla():
     assert "Kil?metros a millas" in proceso.stdout
 
 
-@pytest.mark.xfail(strict=True, reason="Hallazgo 6: la clave distingue mayúsculas y espacios")
 @pytest.mark.parametrize("clave", ["C2F", " c2f ", "C2f"])
 def test_clave_ignora_mayusculas_y_espacios(capsys, clave):
     assert main(["100", clave]) == SALIDA_OK
     assert capsys.readouterr().out.strip() == "212.0"
+
+
+def test_ejecutar_desde_consola_tolera_flujos_sin_reconfigure(monkeypatch):
+    # Si stdout/stderr fueron reemplazados por objetos sin reconfigure(), no debe fallar
+    salida, errores = io.StringIO(), io.StringIO()
+    monkeypatch.setattr(sys, "stdout", salida)
+    monkeypatch.setattr(sys, "stderr", errores)
+    assert cli.ejecutar_desde_consola(["100", "c2f"]) == SALIDA_OK
+    assert salida.getvalue().strip() == "212.0"
