@@ -8,9 +8,6 @@ import pytest
 from cli import main
 from conversor import CONVERSIONES
 
-BUG_SYSTEMEXIT = pytest.mark.xfail(
-    strict=True, reason="Bug #5: main() lanza SystemExit en vez de devolver el código"
-)
 
 
 @pytest.mark.parametrize(
@@ -39,13 +36,11 @@ def test_mensaje_de_clave_invalida_sin_comillas(capsys):
     assert capsys.readouterr().err.startswith("Error: Conversión no soportada: xyz.")
 
 
-@pytest.mark.parametrize(
-    "argv",
-    [
-        [],
-        ["5"],
-        pytest.param(["abc", "c2f"], marks=BUG_SYSTEMEXIT),
-    ],
-)
+@pytest.mark.parametrize("argv", [[], ["5"], ["abc", "c2f"]])
 def test_error_de_uso_devuelve_2_sin_lanzar(capsys, argv):
     assert main(argv) == 2
+
+
+def test_ayuda_devuelve_0_sin_lanzar(capsys):
+    assert main(["--help"]) == 0
+    assert "usage:" in capsys.readouterr().out

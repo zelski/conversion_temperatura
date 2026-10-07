@@ -34,7 +34,8 @@ El código vive en `src/` como módulos planos, separado de las pruebas y la doc
   `ConversionNoSoportada` hereda de `ErrorConversion`. Capturar `ErrorConversion` cubre
   todos los errores del conversor.
 - **`cli.py`**: interfaz con `argparse`. `main(argv=None)` devuelve un código de salida
-  (0 correcto, 1 error de conversión, 2 faltan argumentos) en lugar de llamar a `sys.exit`,
+  (0 correcto, 1 error de conversión, 2 error de uso) en lugar de llamar a `sys.exit`; también
+  captura el `SystemExit` de argparse (argumentos inválidos, `--help`) y devuelve su código,
   para poder probarla pasando `argv`. Captura solo `ErrorConversion`. `--listar` lee las descripciones de `CONVERSIONES`.
 
 ## Agregar una conversión
