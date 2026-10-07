@@ -27,3 +27,5 @@ python -m pytest --cov --cov-report=html      # reporte navegable en htmlcov/ind
 ## Documentación
 
 - [Arquitectura y estructura del proyecto](docs/arquitectura.md)
+- [Plan de mejora](docs/plan-de-mejora.md): auditoría del código y secuencia de PRs de corrección (completado)
+- [Traspaso de sesión](docs/TRASPASO.md): contexto y hallazgos que dieron origen al plan (histórico)

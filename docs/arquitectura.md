@@ -5,7 +5,9 @@
 ```text
 .
 ├── docs/                       # Documentación
-│   └── arquitectura.md
+│   ├── arquitectura.md         # Este documento
+│   ├── plan-de-mejora.md       # Plan de corrección de la auditoría (completado)
+│   └── TRASPASO.md             # Contexto de la sesión previa (histórico)
 ├── src/                        # Código fuente
 │   ├── cli.py                  # Interfaz de línea de comandos (argparse)
 │   └── conversor.py            # Lógica de conversión y registro CONVERSIONES
