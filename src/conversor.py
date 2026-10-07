@@ -99,4 +99,5 @@ def convertir(valor: float, clave: str) -> float:
         raise ConversionNoSoportada(
             f"Conversión no soportada: {clave}. Usa una de: {disponibles}"
         )
-    return round(CONVERSIONES[clave].funcion(valor), DECIMALES)
+    # "+ 0.0" normaliza -0.0 a 0.0 (por ejemplo, al convertir -0.0 o al redondear -0.00001)
+    return round(CONVERSIONES[clave].funcion(valor), DECIMALES) + 0.0
