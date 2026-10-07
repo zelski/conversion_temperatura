@@ -38,10 +38,10 @@ cli.main(argv) ──── argparse valida los argumentos ──── error �
         │
         ▼
 conversor.convertir(100.0, "c2f")
-        │  1. rechaza valores no finitos (nan, inf)       ──► ErrorConversion
-        │  2. busca la clave en CONVERSIONES              ──► ConversionNoSoportada
-        │  3. llama a celsius_a_fahrenheit(100.0)
-        │       └─ valida el límite físico (_exigir_minimo) ──► ErrorConversion
+        │  1. busca la clave en CONVERSIONES              ──► ConversionNoSoportada
+        │  2. llama a celsius_a_fahrenheit(100.0)
+        │       └─ _validar(): valor finito y límite físico ──► ErrorConversion
+        │  3. comprueba que el resultado no se desborde   ──► ErrorConversion
         │  4. redondea a DECIMALES y normaliza -0.0
         ▼
 212.0 ──► se imprime, código 0 (SALIDA_OK)
@@ -54,25 +54,39 @@ ErrorConversion (o subclase) ──► "Error: <mensaje>" en stderr, código 1 (
 ### `conversor.py`
 
 - **Funciones de conversión** (`celsius_a_fahrenheit`, `km_a_millas`, …): cada una valida su
-  límite físico con `_exigir_minimo()` y aplica su fórmula. Los factores y límites son
+  entrada con `_validar()` (que rechaza valores no finitos y fuera del límite físico) y aplica
+  su fórmula. Como son públicas, dan la misma garantía si se llaman sin pasar por
+  `convertir()`. Los factores y límites son
   constantes con nombre (`KM_POR_MILLA`, `CERO_ABSOLUTO_C`, …). Los factores de distancia y
   masa guardan las definiciones exactas (1 mi = 1.609344 km, 1 lb = 0.45359237 kg) y cada
   par de funciones inversas multiplica o divide por la misma constante.
 - **Registro `CONVERSIONES`**: asocia una clave corta (`c2f`, `km2mi`, …) con una
   `Conversion(funcion, descripcion)`, que es un `NamedTuple`. Es la única fuente de verdad
   sobre qué conversiones existen.
-- **`convertir(valor, clave)`**: punto de entrada único. Valida, convierte y redondea a
-  `DECIMALES` (4) decimales.
+- **`convertir(valor, clave)`**: punto de entrada único. Valida primero la clave (no depende
+  del valor y da el mensaje más útil), convierte, rechaza resultados que se desbordan a `inf`
+  y redondea a `DECIMALES` (4) decimales.
 - **Errores de dominio**:
 
   ```text
   ValueError
-  └── ErrorConversion           # valor inválido: no finito o fuera del límite físico
+  └── ErrorConversion           # valor no finito, fuera del límite físico o desbordamiento
       └── ConversionNoSoportada # la clave no está en CONVERSIONES
   ```
 
   Capturar `ErrorConversion` cubre todos los errores del conversor. Como hereda de
   `ValueError`, el código que ya capturaba `ValueError` sigue funcionando.
+
+  Además del mensaje, las excepciones exponen datos para quien las capture sin tener que
+  interpretar el texto (`None` cuando no aplican):
+
+  | Excepción | Atributos |
+  |---|---|
+  | `ErrorConversion` | `valor` (la entrada que falló) y `minimo` (el límite físico violado) |
+  | `ConversionNoSoportada` | `clave` (la pedida) y `disponibles` (tupla ordenada de claves válidas) |
+
+  Los mensajes incluyen el valor y, si aplica, el límite: `Temperatura por debajo del cero
+  absoluto (mínimo permitido: -459.67): -500.0`.
 
 ### `cli.py`
 
@@ -91,8 +105,8 @@ terminar el proceso, para poder probarla pasando `argv`:
 
 ## Agregar una conversión
 
-1. Escribe la función en `src/conversor.py`: valida el límite con `_exigir_minimo()` y
-   documenta la fórmula en su docstring.
+1. Escribe la función en `src/conversor.py`: valida la entrada con `_validar()` antes de
+   calcular y documenta la fórmula en su docstring.
 2. Regístrala en `CONVERSIONES` con una clave corta y una descripción.
 3. Agrega sus casos a las pruebas parametrizadas de `tests/test_conversor.py` (ver
    [pruebas.md](pruebas.md#agregar-pruebas)).
