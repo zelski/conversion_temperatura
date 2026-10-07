@@ -7,7 +7,7 @@ import math
 
 import pytest
 
-from conversor import CONVERSIONES, convertir
+from conversor import CONVERSIONES, ConversionNoSoportada, ErrorConversion, convertir
 
 BUG_CERO_NEGATIVO = pytest.mark.xfail(strict=True, reason="Bug #9: se devuelve -0.0")
 
@@ -53,7 +53,7 @@ def test_ida_y_vuelta_recupera_el_valor(ida, vuelta, valor):
     ],
 )
 def test_convertir_rechaza_valores_fisicamente_imposibles(clave, valor):
-    with pytest.raises(ValueError):
+    with pytest.raises(ErrorConversion):
         convertir(valor, clave)
 
 
@@ -71,14 +71,20 @@ def test_convertir_acepta_el_limite_fisico_exacto(clave, valor):
 
 @pytest.mark.parametrize("valor", [math.nan, math.inf, -math.inf])
 def test_convertir_rechaza_valores_no_finitos(valor):
-    with pytest.raises(ValueError):
+    with pytest.raises(ErrorConversion):
         convertir(valor, "km2mi")
 
 
 def test_convertir_clave_invalida():
-    # Una clave inexistente debe producir un KeyError que mencione la clave
-    with pytest.raises(KeyError, match="leguas2parsecs"):
+    # Una clave inexistente debe producir ConversionNoSoportada que mencione la clave
+    with pytest.raises(ConversionNoSoportada, match="leguas2parsecs"):
         convertir(5, "leguas2parsecs")
+
+
+def test_errores_de_dominio_son_value_error():
+    # Compatibilidad: quien capturaba ValueError sigue capturando los errores del conversor
+    assert issubclass(ConversionNoSoportada, ErrorConversion)
+    assert issubclass(ErrorConversion, ValueError)
 
 
 @BUG_CERO_NEGATIVO

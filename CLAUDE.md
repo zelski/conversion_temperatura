@@ -20,8 +20,8 @@ Code lives as flat modules in `src/` (no subpackages), tests in `tests/`, docs i
 
 ## Architecture
 
-- `src/conversor.py` — conversion logic. Each conversion is a standalone function that validates physical limits (below absolute zero, negative distance/mass) by raising `ValueError`. The `CONVERSIONES` dict is the central registry mapping a short key (e.g. `c2f`, `km2mi`) to `(function, description)`. `convertir(valor, clave)` is the single entry point: it raises `ValueError` for non-finite values (`nan`, `inf`), `KeyError` for unknown keys, and rounds results to 4 decimals.
-- `src/cli.py` — argparse front end. `main(argv=None)` returns an exit code (0 ok, 1 conversion error, 2 missing arguments) instead of calling `sys.exit` directly, so it can be tested by passing `argv`. `--listar` reads descriptions straight from `CONVERSIONES`.
+- `src/conversor.py` — conversion logic. Each conversion is a standalone function that validates physical limits (below absolute zero, negative distance/mass) by raising `ErrorConversion`. The `CONVERSIONES` dict is the central registry mapping a short key (e.g. `c2f`, `km2mi`) to `(function, description)`. `convertir(valor, clave)` is the single entry point: it raises `ErrorConversion` for non-finite values (`nan`, `inf`), `ConversionNoSoportada` for unknown keys, and rounds results to 4 decimals. Exception hierarchy: `ConversionNoSoportada` → `ErrorConversion` → `ValueError`; raise these domain errors, not bare `ValueError`/`KeyError`.
+- `src/cli.py` — argparse front end. `main(argv=None)` returns an exit code (0 ok, 1 conversion error, 2 missing arguments) instead of calling `sys.exit` directly, so it can be tested by passing `argv`. It catches only `ErrorConversion`. `--listar` reads descriptions straight from `CONVERSIONES`.
 To add a conversion: write the function in `src/conversor.py` and register it in `CONVERSIONES`; the CLI and `--listar` pick it up automatically.
 
 ## Tests

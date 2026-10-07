@@ -5,7 +5,7 @@
 import argparse
 import sys
 
-from conversor import CONVERSIONES, convertir
+from conversor import CONVERSIONES, ErrorConversion, convertir
 
 
 def construir_parser():
@@ -55,9 +55,8 @@ def main(argv=None):
 
     try:
         resultado = convertir(args.valor, args.clave)
-    except (ValueError, KeyError) as error:
-        # KeyError envuelve el mensaje entre comillas; lo limpiamos para el usuario
-        print(f"Error: {str(error).strip(chr(39))}", file=sys.stderr)
+    except ErrorConversion as error:
+        print(f"Error: {error}", file=sys.stderr)
         return 1
 
     print(resultado)

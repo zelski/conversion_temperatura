@@ -25,14 +25,17 @@ El código vive en `src/` como módulos planos, separado de las pruebas y la doc
 ## Módulos
 
 - **`conversor.py`**: cada conversión es una función independiente que valida los límites
-  físicos (cero absoluto, distancias o masas negativas) lanzando `ValueError`. El diccionario
-  `CONVERSIONES` es el registro central que asocia una clave corta (`c2f`, `km2mi`, …) con
-  `(función, descripción)`. `convertir(valor, clave)` es el punto de entrada único: lanza
-  `ValueError` para valores no finitos (`nan`, `inf`), `KeyError` para claves desconocidas y
-  redondea el resultado a 4 decimales.
+  físicos (cero absoluto, distancias o masas negativas) lanzando `ErrorConversion`. El
+  diccionario `CONVERSIONES` es el registro central que asocia una clave corta (`c2f`,
+  `km2mi`, …) con `(función, descripción)`. `convertir(valor, clave)` es el punto de entrada
+  único: lanza `ErrorConversion` para valores no finitos (`nan`, `inf`),
+  `ConversionNoSoportada` para claves desconocidas y redondea el resultado a 4 decimales.
+- **Errores de dominio**: `ErrorConversion` hereda de `ValueError` y
+  `ConversionNoSoportada` hereda de `ErrorConversion`. Capturar `ErrorConversion` cubre
+  todos los errores del conversor.
 - **`cli.py`**: interfaz con `argparse`. `main(argv=None)` devuelve un código de salida
   (0 correcto, 1 error de conversión, 2 faltan argumentos) en lugar de llamar a `sys.exit`,
-  para poder probarla pasando `argv`. `--listar` lee las descripciones de `CONVERSIONES`.
+  para poder probarla pasando `argv`. Captura solo `ErrorConversion`. `--listar` lee las descripciones de `CONVERSIONES`.
 
 ## Agregar una conversión
 
