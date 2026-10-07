@@ -4,6 +4,8 @@
 
 ```text
 .
+├── .claude/
+│   └── settings.json           # Configuración de Claude Code (archivos que no debe leer)
 ├── docs/                       # Documentación (índice en docs/README.md)
 ├── src/                        # Código fuente
 │   ├── cli.py                  # Interfaz de línea de comandos (argparse)

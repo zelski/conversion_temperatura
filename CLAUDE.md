@@ -17,7 +17,7 @@ python src/cli.py 100 c2f                    # run a conversion
 python src/cli.py --listar                   # list available conversion keys
 ```
 
-Code lives as flat modules in `src/` (no subpackages, nothing installable), tests in `tests/`, docs in `docs/`. `pyproject.toml` only configures tooling: pytest's `pythonpath = ["src"]` lets tests import `conversor` directly, and `[tool.coverage.*]` measures `src/` with branch coverage (only the `if __name__ == "__main__":` guard is excluded). There is no linter or build step configured.
+Code lives as flat modules in `src/` (no subpackages, nothing installable), tests in `tests/`, docs in `docs/`. `pyproject.toml` only configures tooling: pytest's `pythonpath = ["src"]` lets tests import `conversor` directly, and `[tool.coverage.*]` measures `src/` with branch coverage (only the `if __name__ == "__main__":` guard is excluded). There is no linter or build step configured. `.claude/settings.json` denies reading generated files (`.venv/`, `__pycache__/`, `*.pyc`, `.pytest_cache/`, `htmlcov/`, `.coverage`); run tests with the system `python`, not `.venv\Scripts\python`.
 
 ## Architecture
 
