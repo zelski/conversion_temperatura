@@ -27,9 +27,10 @@ El código vive en `src/` como módulos planos, separado de las pruebas y la doc
 - **`conversor.py`**: cada conversión es una función independiente que valida los límites
   físicos (cero absoluto, distancias o masas negativas) lanzando `ErrorConversion`. El
   diccionario `CONVERSIONES` es el registro central que asocia una clave corta (`c2f`,
-  `km2mi`, …) con `(función, descripción)`. `convertir(valor, clave)` es el punto de entrada
-  único: lanza `ErrorConversion` para valores no finitos (`nan`, `inf`),
-  `ConversionNoSoportada` para claves desconocidas y redondea el resultado a 4 decimales.
+  `km2mi`, …) con una `Conversion(funcion, descripcion)` (`NamedTuple`).
+  `convertir(valor, clave)` es el punto de entrada único: lanza `ErrorConversion` para
+  valores no finitos (`nan`, `inf`), `ConversionNoSoportada` para claves desconocidas y
+  redondea el resultado a 4 decimales.
 - **Errores de dominio**: `ErrorConversion` hereda de `ValueError` y
   `ConversionNoSoportada` hereda de `ErrorConversion`. Capturar `ErrorConversion` cubre
   todos los errores del conversor.

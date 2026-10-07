@@ -36,9 +36,8 @@ def test_convertir_valores_conocidos(clave, valor, esperado):
 @pytest.mark.parametrize("ida, vuelta", PARES_INVERSOS + [(b, a) for a, b in PARES_INVERSOS])
 @pytest.mark.parametrize("valor", [0, 1, 37.5, 1000])
 def test_ida_y_vuelta_recupera_el_valor(ida, vuelta, valor):
-    funcion_ida, _ = CONVERSIONES[ida]
-    funcion_vuelta, _ = CONVERSIONES[vuelta]
-    assert funcion_vuelta(funcion_ida(valor)) == pytest.approx(valor)
+    intermedio = CONVERSIONES[ida].funcion(valor)
+    assert CONVERSIONES[vuelta].funcion(intermedio) == pytest.approx(valor)
 
 
 @pytest.mark.parametrize(
