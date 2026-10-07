@@ -12,6 +12,13 @@ usa `conversor.py` o en los scripts que llaman a la CLI.
 
 ### Corregido
 
+- Un valor finito muy grande podía desbordarse a `inf` al convertir: `1e308 c2f` imprimía
+  `inf` con código 0. Ahora se rechaza con `ErrorConversion` (código 1).
+  ([#19](https://github.com/zelski/conversion_temperatura/pull/19))
+- Las funciones de conversión públicas (`celsius_a_fahrenheit`, …) aceptaban `nan` e `inf`
+  cuando se llamaban sin pasar por `convertir()`. Ahora todas rechazan valores no finitos.
+  ([#19](https://github.com/zelski/conversion_temperatura/pull/19))
+
 - Las conversiones de distancia y masa usaban factores truncados (`0.621371` y `2.20462`) que
   alteraban los decimales mostrados con valores grandes: `1000 kg2lb` daba `2204.62` en lugar
   de `2204.6226`. Ahora se usan las definiciones exactas (1 mi = 1.609344 km,
@@ -32,6 +39,13 @@ usa `conversor.py` o en los scripts que llaman a la CLI.
 
 ### Cambiado
 
+- Los mensajes de error incluyen el valor que falló y, si aplica, el límite físico:
+  `La distancia no puede ser negativa (mínimo permitido: 0): -1.0`. `convertir()` valida la
+  clave antes que el valor, así que con ambos inválidos informa la clave. Las excepciones
+  exponen los datos sin necesidad de interpretar el texto: `ErrorConversion.valor` y
+  `.minimo`, y `ConversionNoSoportada.clave` y `.disponibles`. Los tipos de excepción y los
+  códigos de salida no cambian; solo el texto de los mensajes.
+  ([#19](https://github.com/zelski/conversion_temperatura/pull/19))
 - **⚠️ Rompe el contrato**: `convertir()` lanza `ConversionNoSoportada` en lugar de `KeyError`
   para claves desconocidas. Los errores de validación pasan a ser `ErrorConversion`, que
   hereda de `ValueError`, así que el código que capturaba `ValueError` sigue funcionando.

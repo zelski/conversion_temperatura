@@ -57,7 +57,7 @@ $ python src/cli.py 10 km2mi
 6.2137
 
 $ python src/cli.py -1 km2mi
-Error: La distancia no puede ser negativa
+Error: La distancia no puede ser negativa (mínimo permitido: 0): -1.0
 
 $ python src/cli.py 5 xyz
 Error: Conversión no soportada: xyz. Usa una de: c2f, f2c, kg2lb, km2mi, lb2kg, mi2km
@@ -68,7 +68,7 @@ Error: Conversión no soportada: xyz. Usa una de: c2f, f2c, kg2lb, km2mi, lb2kg,
 | Código | Significado |
 |---|---|
 | 0 | Conversión correcta (o `--listar` / `--help`) |
-| 1 | Error de conversión: valor fuera del límite físico, `nan`/`inf` o clave inexistente |
+| 1 | Error de conversión: valor fuera del límite físico, `nan`/`inf`, resultado demasiado grande o clave inexistente |
 | 2 | Error de uso: faltan argumentos o el valor no es un número |
 
 Los mensajes de error se escriben en la salida de error (stderr).
