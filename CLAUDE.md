@@ -9,14 +9,15 @@ A small command-line unit converter in pure Python (standard library only; `pyte
 ## Commands
 
 ```bash
-pip install -r requirements.txt              # installs pytest
+pip install -r requirements.txt              # installs pytest and pytest-cov
 python -m pytest                             # run all tests
 python -m pytest tests/test_conversor.py::test_convertir_clave_invalida   # single test
+python -m pytest --cov                       # statement + branch coverage of src/
 python src/cli.py 100 c2f                    # run a conversion
 python src/cli.py --listar                   # list available conversion keys
 ```
 
-Code lives as flat modules in `src/` (no subpackages), tests in `tests/`, docs in `docs/`. `pyproject.toml` only configures pytest: `pythonpath = ["src"]` lets tests import `conversor` directly without installing anything. There is no linter or build step configured.
+Code lives as flat modules in `src/` (no subpackages), tests in `tests/`, docs in `docs/`. `pyproject.toml` only configures tooling: pytest's `pythonpath = ["src"]` lets tests import `conversor` directly without installing anything, and `[tool.coverage.*]` measures `src/` with branch coverage (the `if __name__ == "__main__":` guard is excluded). Coverage is currently 100% — keep new code covered. There is no linter or build step configured.
 
 ## Architecture
 
